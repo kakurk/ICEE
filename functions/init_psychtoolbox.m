@@ -1,6 +1,7 @@
 function init_psychtoolbox(DBmode)
-
-
+% Initalize Psychtoolbox. 
+% Written by Kyle Kurkela
+% kyleakurkela@gmail.com
 
 %%
 %==========================================================================
@@ -19,9 +20,6 @@ Screen('Preference', 'SkipSyncTests', 1);
 Screen('Preference', 'VisualDebugLevel', 0);
 Screen('Preference', 'SuppressAllWarnings', 1);
 Screen('Preference', 'Verbosity', 0);
-
-% InitalizePsychSound
-InitializePsychSound(1);
 
 % Prevent Keystrokes from being entered into MATLAB command and editor 
 % windows
@@ -49,9 +47,7 @@ global X Y W
 
 % Open a double buffered fullscreen window on the stimulation screen
 % 'screenNumber' and use background color specified in settings
-% 'w' is the handle used to direct all drawing commands to that window
-% 'wRect' is a rectangle defining the size of the window. See "help 
-% PsychRects" for help on such rectangles
+% 'W' is the handle used to direct all drawing commands to that window
 %     W = Screen('OpenWindow', screenNumber, backgroundColor);
 
 if strcmp(DBmode, 'y')
@@ -61,6 +57,8 @@ else
 end
 
 % How large is this window, in pixels?
+% X = width of the window, in pixels
+% Y = height of the window, in pixels
 [X, Y] = Screen(W, 'WindowSize');
 
 % Set Default Text Size for this Window
