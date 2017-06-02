@@ -1,4 +1,4 @@
-function [] = instructions_screen(varargin)
+function [secs] = instructions_screen(varargin)
 
 %% Parse Input Arguments
     
@@ -11,7 +11,7 @@ function [] = instructions_screen(varargin)
          'n';
          [KbName('space') KbName('escape')];
          -1;
-         .200;
+         .050;
          2};
      
      % User Specified Settings
@@ -29,7 +29,7 @@ function [] = instructions_screen(varargin)
     if strcmp(autoskip, 'n')
         
         RestrictKeysForKbCheck(keys);
-        [~, keycode, ~] = KbStrokeWait(resp_device);
+        [secs, keycode, ~] = KbStrokeWait(resp_device);
         
         if keycode(KbName('escape')) == 1
             sca
