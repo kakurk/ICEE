@@ -13,7 +13,7 @@
 % clear the workspace and add the ./functions directory to the MATLAB 
 % search path
 clear
-addpath(genpath([mfilename('fullpath') filesep 'functions']))
+addpath(genpath([fileparts(mfilename('fullpath')) filesep 'functions']))
 
 % Ask the user for input
 % DBmode   = Debugging Mode (smaller screen)
@@ -25,8 +25,8 @@ subject  = input('Enter subject ID: ','s');
 % Hard coded yes/no variables:
 % y = yes
 % n = no
-YN.enc  = 'y';              % run encoding
-YN.ret  = 'y';              % run retrieval
+YN.enc  = 'n';              % run encoding
+YN.ret  = 'n';              % run retrieval
 YN.instructAutoSkip = 'n';  % autoskip instruction screens
 
 % Initalize Psychtoolbox
@@ -47,34 +47,43 @@ end
 try
     %% Try Running Experiment
     
-    % Generate the Encoding, Retrieval Trial Lists
-    stimdir               = fullfile(mfilename('fullpath'), 'stim');
-    [Encoding, Retrieval] = generate_lists(stimdir);
+    % specify directory paths
+    stimdir    = fullfile(fileparts(mfilename('fullpath')), 'stim');
+    listsdir   = fullfile(fileparts(mfilename('fullpath')), 'lists');
     
-    % Preload the Trial Stimuli. This may take a few seconds
-    [Encoding, Retrieval] = preload_stim(Encoding, Retrieval);    
+    % read in encoding trial list
+    Encoding   = readtable(fullfile(listsdir, 'encoding_list.csv'));
+    
+    % read in retrieval trial list
+    Retrieval  = readtable(fullfile(listsdir, 'retrieval_list.csv'));
+    
+    % preload stimuli
+    Encoding  = preload_stim(Encoding, stimdir, 'FaceStim');
+    Encoding  = preload_stim(Encoding, stimdir, 'SceneStim');
+    Retrieval = preload_stim(Retrieval, stimdir, 'Face');
+    Retrieval = preload_stim(Retrieval, stimdir, 'Scene');
+  
+    % number of runs
+    nruns = 4;
     
     % For each run...
     for crun = 1:nruns
         
-        %-- "Welcome to Run" Screen
+        %-- Trigger Screen
+        instructions = 'Waiting for the scanner...';
+        directions   = ' ';
+        triggerTime  = instructions_screen(instructions, directions, YN.instructAutoSkip, KbName('t'), -1, 0);
         
-        instructions = ['Welcome to Run ' num2str(outer)];
-        directions   = 'Press spacebar when you are ready to continue';
-        instructions_screen(instructions, directions, YN.instructAutoSkip);
-            
-        % Run Encoding
+        %-- Run Encoding
         if strcmp(YN.enc, 'y')              
             encoding;
         end
- 
-        %-- View/Remember Buffer Screen
-        
-        instructions = 'You are finished with the pair View Rounds';
-        directions   = 'Press spacebar when you are ready to continue to the Remember Rounds';
-        instructions_screen(instructions, directions, YN.instructAutoSkip);
-       
 
+        %-- Trigger Screen
+        instructions = 'Waiting for the scanner...';
+        directions   = ' ';
+        triggerTime  = instructions_screen(instructions, directions, YN.instructAutoSkip, KbName('t'), -1, 0);        
+        
         %-- Run Retrieval
         if strcmp(YN.ret, 'y')
             retreival;
