@@ -1,7 +1,7 @@
-%% EMOTICON Encoding:
-% Called by emoticon.m
-% Written by Kyle Kurkela, kyleakurkela@gmail.com October 2016
-% See https://github.com/memobc/EMOTICON for more information
+function [] = encoding(Encoding, run)
+%% ICEE Encoding:
+% Called by icee.m
+% Written by Kyle Kurkela, kyleakurkela@gmail.com June 2017
 
 %%
 %==========================================================================
@@ -14,28 +14,20 @@
     instructions = {
         'View Round\n\nAnswer the questions as quickly and accurately as you can'
     };
-    
-%-- EMOTICON Specific Settings
 
-    % Size of the item stimuli, in pixels (i.e., as a n x n square)
-    ImgSize      = 256;
+    % trial-by-trial instructions
+    trial_instructions      = 'How welcoming are the scene and face?';
+    response_scale          = '1                2               3               4';
+    response_scale_descript = 'not at all                                    very';
     
-    % The amount of time the beginning-of-miniblock instructions are
-    % displayed on the screen (s)
-    instrScrTime  = 4;
+%-- ICEE Settings
+
+    % Size of the stimuli, in pixels
+    FaceSize      = [256 256];
+    SceneSize     = [640 480];
     
-    % The amount of time post-trial fixations are displayed (s)
-    fixTime       = 1.5;
-    
-    % Amount of time the context stimuli is displayed prior to the Item
-    % stimuli coming onto the screen (s)
-    conTime       = 1.5;
-    
-    % The amount of time the item stimuli is displayed (s)
-    picTime       = 2;
-    
-    % The number of repetitions of the sounds to be played (s)
-    repetitions   = 1;
+    % How much to offset the scene image away from the center.
+    offset        = 200;
     
     % The amount of time the pre run fixation is displayed (s)
     preFix        = 2;
@@ -43,22 +35,26 @@
     % The amount of time the post run fixation is displayed (s)
     postFix       = 2;
     
+%-- Define trials to run
+    
+    trials2run = find(Encoding.Run == run)';
+    
 %-- Initialize Response Recorder Variables
 
-    OnsetTime    = zeros(1, height(thisEncRun));
-    resp         = cell(1, height(thisEncRun));
-    resp_time    = zeros(1, height(thisEncRun));
+    OnsetTime    = zeros(1, length(trials2run));
+    resp         = cell(1, length(trials2run));
+    resp_time    = zeros(1, length(trials2run));
 
 %-- Create the Keyboard Queue (see KbQueue documentation), restricting
 %   responses to the ENC_keylist keys (see init_psychtoolbox)
-    rep_device = -1;
-    keylist = zeros(1, 256);
-    keylist([KbName('1!') KbName('2@')]) = 1;    
+    rep_device                           = -1;
+    keylist                              = zeros(1, 256);
+    keylist([KbName('1!') KbName('2@') KbName('3#') KbName('4$')]) = 1;
     KbQueueCreate(rep_device, keylist)
     
 %-- Establish global variables
 
-    global W X Y
+    global W X Y fast
 
 %%
 %==========================================================================
@@ -71,7 +67,7 @@
 
 for i = 1:length(instructions)
     
-    instructions_screen(instructions{i}, [], YN.instructAutoSkip);
+    instructions_screen(instructions{i}, ' ', 'n', [KbName('1!')]);
     
 end
 
@@ -95,129 +91,95 @@ WaitSecs(preFix * fast);
 %==========================================================================
 % Encoding Routine
 
-% Initalize a tracker varaible 'prevMiniBlock'. This variable keeps track 
-% of the previous trial's Mini Block ID; used in determining when to 
-% display the beginning of Mini Block instructions screen
-prevMiniBlock = 0;
-
-% For each trial in thisEncRun...
-for curTrial = 1:height(thisEncRun)
+% For each trial to run...
+for curTrial = trials2run
     
-    %-- Start of a New Mini Block Instructions Screen
+    %-- Trial Parameters
     
-        % Figure out which context was assigned to this trial and assign 
-        % the appropriate question
-        if strcmp(thisEncRun.Context(curTrial), 'context_001.jpg')
-            message = 'Is the object larger than a basketball?\n\n1 = yes  |  2 = no';
-        elseif strcmp(thisEncRun.Context(curTrial), 'context_002.jpg')
-            message = 'Would the object be found in a circus?\n\n1 = yes  |  2 = no';
-        elseif strcmp(thisEncRun.Context(curTrial), 'context_003.jpg')
-            message = 'Would you keep the object in an office?\n\n1 = yes  |  2 = no';
-        elseif strcmp(thisEncRun.Context(curTrial), 'context_004.jpg')
-            message = 'Does this object float?\n\n1 = yes  |  2 = no';
-        end
-
-        % if this is the start of a new mini block..
-        if thisEncRun.MiniBlock(curTrial) ~= prevMiniBlock;
-
-            % Display Encoding Message Appropriate to this Context
-            DrawFormattedText(W, message, 'center', 'center');
-            Screen('Flip', W);
-            WaitSecs(instrScrTime * fast);
-
+        trialTime    = Encoding.StudyStimulus_Duration(curTrial) / 1000;
+        fixationTime = Encoding.Fixation_Duration(curTrial) / 1000;
+        
+        if strcmp(Encoding.EncodingCond(curTrial), 'II')
+            
+            if strcmp(Encoding.SceneOrFaceLeft(curTrial), 'FaceLeft')
+            
+                Side = RectLeft;
+                off  = offset;
+                
+            elseif strcmp(Encoding.SceneOrFaceLeft(curTrial), 'SceneLeft')
+            
+                Side   = RectRight;
+                off    = -offset;
+                
+            end
+            
+        elseif strcmp(Encoding.EncodingCond(curTrial), 'IC')
+            
+            Side   = RectBottom;
+            off    = 0;
+            
         end
     
-    %-- Figure out the Border Color
-    
-        % If this is a negative trial, make the border color red. If it 
-        % is a neutral trial, make the border color black
-        if strcmp(thisEncRun.Emotion(curTrial), 'Negative')
-            bordcolor = [255 0 0];
-        elseif strcmp(thisEncRun.Emotion(curTrial), 'Neutral')
-            bordcolor = [0 0 0];
-        end
-    
-    %-- Draw the Background Context
+    %-- Draw the Context
     
         % Where is the Context Stimuli going?
-        ImageRect = CenterRectOnPoint([0 0 1200 800], X/2, Y/2);
+        SceneRect    = CenterRectOnPoint([0 0 SceneSize], X/2, Y/2);
+        SceneRect    = OffsetRect(SceneRect, off, 0);
         
         % Draw Context Stimuli
-        Screen('DrawTexture', W, thisEncRun.ContextimID(curTrial), [], ImageRect);              
+        Screen('DrawTexture', W, Encoding.SceneStimid(curTrial), [], SceneRect);              
         
-        % Flip Screen WITHOUT clearing the buffer afterwards (see Screen 
-        % Flip documentation) and Wait "conTime"
-        Screen(W, 'Flip', [], 1);
-        WaitSecs(conTime * fast);
-        
-    %-- Draw the Item on Top of the Context
+    %-- Draw the Item
 
         % Where is the Item Stimuli going?
-        ImageRect = CenterRectOnPoint([0 0 ImgSize ImgSize], X/2, Y/2);
+        FaceRect = CenterRectOnPoint([0 0 FaceSize], X/2, Y/2);
+        if strcmp(Encoding.EncodingCond(curTrial), 'IC')
+            FaceRect = AlignRect(FaceRect, SceneRect, Side);
+        else
+            FaceRect = AdjoinRect(FaceRect, SceneRect, Side);
+        end
         
         % Draw Item Stimuli
-        Screen('DrawTexture', W, thisEncRun.ItemimID(curTrial), [], ImageRect);
+        Screen('DrawTexture', W, Encoding.FaceStimid(curTrial), [], FaceRect);
+        
+    %-- Draw the Text
+    
+        % Trial Instructions
+        [~, ny, bbox] = DrawFormattedText(W, trial_instructions, 'center', SceneRect(RectBottom) + 100);
+        bboxH = RectHeight(bbox); % height of the text box
+        
+        % Scale
+        [~, ny, ~] = DrawFormattedText(W, response_scale, 'center', ny + bboxH + 10);
+        
+        % Scale Description
+        DrawFormattedText(W, response_scale_descript, 'center', ny + bboxH + 10);
         
         % Flush and start the Psychtoolbox Keyboard Queue. See KbQueue*
         % documentation
         KbQueueFlush(rep_device);
         KbQueueStart(rep_device);
         
-        % Flip Screen WITHOUT clearing the buffer afterwards (see Screen 
-        % Flip documentation) and Record the Onset Time
-        OnsetTime(curTrial) = Screen(W, 'Flip', [], 1);
+        % Flip Screen and Record the Onset Time
+        OnsetTime(curTrial) = Screen(W, 'Flip');
         
-        % Wait "picTime"
-        WaitSecs(picTime * fast);
+        % Wait "trialTime"
+        WaitSecs(trialTime * fast);
         
-    %-- Draw Item Border
-        
-        % Border
-        border = [X/2-ImgSize/2-10 Y/2-ImgSize/2-10 X/2+ImgSize/2+10 Y/2+ImgSize/2+10];
+    %-- Post Trial Fixation
     
-        % Draw Item Border
-        Screen('FrameRect', W, bordcolor, border, 10);
-        
-        % Flip Screen and wait 1 second
+        % Draw fixation dot, flip the screen, and wait 1
+        Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
+        Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);        
         Screen(W, 'Flip');
-        WaitSecs(1);
+        WaitSecs(1 * fast);
         
-    %-- Play Sound When Appropriate
-        
-        % If this is a scheduled noise trial...
-        if thisEncRun.Noise(curTrial) && strcmp(thisEncRun.Emotion(curTrial), 'Negative')
-
-            PsychPortAudio('Start', E_pahandle, repetitions, 0);         % play aversive white noise burst
-
-        elseif thisEncRun.Noise(curTrial) && strcmp(thisEncRun.Emotion(curTrial), 'Neutral')
-
-            PsychPortAudio('Start', N_pahandle, repetitions, 0);         % play neutral tone
-
-        end
-        
-        % Wait 1 Second
-        WaitSecs(1);
-        
-    %-- Record Responses
-    
+        % Record Responses
         [resp{curTrial}, resp_time(curTrial)] = record_responses();
-                
-    %-- Post Trial ISI
-    
-        % Where is the Context Stimuli going?
-        ImageRect = CenterRectOnPoint([0 0 1200 800], X/2, Y/2);
         
-        % Draw Context Stimuli
-        Screen('DrawTexture', W, thisEncRun.ContextimID(curTrial), [], ImageRect);    
-        
-        % Draw fixation cross, flip the screen, and wait "fixTime"
-        Screen(W, 'Flip');
-        WaitSecs(fixTime * fast);
+        % Wait the rest of the sceduled fixation time
+        WaitSecs((fixationTime - 1) * fast);
         
     %-- Post Trial Cleanup
-        
-        % Update the prevMiniBlock tracker
-        prevMiniBlock = thisEncRun.MiniBlock(curTrial);
         
         % Flush the KbQueue as a precation (note: this command isn't
         % entirely necessary, as the KbQueue is flushed prior to recording
@@ -261,12 +223,16 @@ KbQueueRelease(rep_device);
 %
 %   subj:      the subject's ID
 
-thisEncRun.Onset     = OnsetTime' - expstart;
-thisEncRun.resp      = resp';
-thisEncRun.resp_time = resp_time' - expstart;
-thisEncRun.rt        = resp_time' - OnsetTime';
-thisEncRun.subj      = repmat({subject}, height(thisEncRun), 1);
+thisEncRun              = Encoding(Encoding.Run == run, :);
+
+thisEncRun.Onset        = OnsetTime' - expstart;
+thisEncRun.Response     = resp';
+thisEncRun.ResponseTime = resp_time' - expstart;
+thisEncRun.rt           = resp_time' - OnsetTime';
+thisEncRun.SubjectID    = repmat({subject}, height(thisEncRun), 1);
 
 % Write the Enc List for this round to a .csv file in the local directory 
 % "./data"
-writetable(thisEncRun, fullfile('.','data',['emoticon_encoding_' subject '_' num2str(enccount) '_' TimeStamp '.csv']));
+writetable(thisEncRun, fullfile('.','data',['icee_encoding_' subject '_' num2str(run) '_' TimeStamp '.csv']));
+
+end
