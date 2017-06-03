@@ -51,9 +51,9 @@ global X Y W
 %     W = Screen('OpenWindow', screenNumber, backgroundColor);
 
 if strcmp(DBmode, 'y')
-    W = Screen('OpenWindow', screenNumber, 128, [0 0 1200 1200]); % Smaller screen for testing/debugging
+    W = Screen('OpenWindow', screenNumber, 0, [0 0 1200 1200]); % Smaller screen for testing/debugging
 else
-    W = Screen('OpenWindow', screenNumber, 128); % Fullscreen
+    W = Screen('OpenWindow', screenNumber, 0); % Fullscreen
 end
 
 % How large is this window, in pixels?
@@ -63,6 +63,7 @@ end
 
 % Set Default Text Size for this Window
 Screen('TextSize', W, 30);
+Screen('TextColor', W, 255);
 
 %%
 %====================================================================================
