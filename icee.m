@@ -25,7 +25,7 @@ subject  = input('Enter subject ID: ','s');
 % Hard coded yes/no variables:
 % y = yes
 % n = no
-YN.enc  = 'n';              % run encoding
+YN.enc  = 'y';              % run encoding
 YN.ret  = 'n';              % run retrieval
 YN.instructAutoSkip = 'n';  % autoskip instruction screens
 
@@ -36,6 +36,7 @@ init_psychtoolbox(DBmode);
 TimeStamp = [datestr(clock,'yyyy-mm-dd-HHMM') datestr(clock,'ss')];
 
 % if running debug mode, make the experiment go faster
+global fast
 if strcmp(DBmode, 'y')
     fast = .5; % .5 = 2x as fast, .1 = 10x as fast, 1 = real time, ect.
 else
@@ -76,7 +77,7 @@ try
         
         %-- Run Encoding
         if strcmp(YN.enc, 'y')              
-            encoding;
+            encoding(Encoding, crun);
         end
 
         %-- Trigger Screen
@@ -86,7 +87,7 @@ try
         
         %-- Run Retrieval
         if strcmp(YN.ret, 'y')
-            retreival;
+            retreival(Retrieval, crun);
         end
 
     end
