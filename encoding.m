@@ -49,7 +49,7 @@ function [] = encoding(Encoding, run, triggerTime)
     
 %-- Establish global variables
 
-    global W X Y fast
+    global W X Y fast subject TimeStamp
 
 %%
 %==========================================================================
