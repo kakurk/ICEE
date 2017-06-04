@@ -1,3 +1,4 @@
 stim/*.jpg
 stim/*.png
 *.m~
+data/*.csv
