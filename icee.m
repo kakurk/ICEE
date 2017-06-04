@@ -20,12 +20,13 @@ addpath(genpath([fileparts(mfilename('fullpath')) filesep 'functions']))
 % subject  = subject number
 
 DBmode   = input('Debug mode? y/n: ','s');
+global subject
 subject  = input('Enter subject ID: ','s');
 
 % Hard coded yes/no variables:
 % y = yes
 % n = no
-YN.enc  = 'n';              % run encoding
+YN.enc  = 'y';              % run encoding
 YN.ret  = 'y';              % run retrieval
 YN.instructAutoSkip = 'n';  % autoskip instruction screens
 
@@ -33,6 +34,7 @@ YN.instructAutoSkip = 'n';  % autoskip instruction screens
 init_psychtoolbox(DBmode);
 
 % Time Stamp
+global TimeStamp
 TimeStamp = [datestr(clock,'yyyy-mm-dd-HHMM') datestr(clock,'ss')];
 
 % if running debug mode, make the experiment go faster
