@@ -1,7 +1,7 @@
-%% EMOTICON Retreival:
-% Called by emoticon.m
-% Written by Kyle Kurkela, kyleakurkela@gmail.com October 2016
-% See https://github.com/memobc/EMOTICON for more information
+function retrieval(Retrieval, run, triggerTime)
+%% ICEE Retreival:
+% Called by icee.m
+% Written by Kyle Kurkela, kyleakurkela@gmail.com June 2017
 
 %%
 %==========================================================================
@@ -10,62 +10,47 @@
 
 %-- Instructions
 
-    % Instructions Message
-    instructions = {
-        'Remember Round\n\nMake your memory decisions as quickly and accurately as you can'
-    };
+    % trial-by-trial instructions
+    trial_instructions      = 'Did this face and scene appear together previously?';
+    response_scale          = 'Yes                                                No';
 
 %-- Emoticon Specific Settings
 
-    % Size of the item stimuli, in pixels (i.e., as a n x n square)
-    ImgSize      = 256;
-
-    % The amount of time post-trial fixations are displayed
-    fixTime      = 2;
-
-    % The amount of time the item memory question is displayed
-    picTime      = 2.5;
-
-    % The amount of time the emotional association question is displayed
-    emoTime      = 2;
+    % Size of the stimuli, in pixels
+    FaceSize      = [256 256];
+    SceneSize     = [640 480];
+    
+    % How much to offset the scene image away from the center.
+    offset        = 200;
+    
+    % The amount of time the pre run fixation is displayed (s)
+    preFix        = 2;
+    
+    % The amount of time the post run fixation is displayed (s)
+    postFix       = 2;
+    
+%-- Define trials to run
+    
+    trials2run = find(Retrieval.Run == run)';    
 
 %-- Initialize Response Recorder Variables
 
     % ITEM
-    ITEM_OnsetTime = zeros(1, height(thisRetRun));
-    ITEM_resp      = cell(1, height(thisRetRun));
-    ITEM_RespTime  = zeros(1, height(thisRetRun));
-
-    % EMO
-    EMO_OnsetTime  = zeros(1, height(thisRetRun));
-    EMO_resp       = cell(1, height(thisRetRun));
-    EMO_RespTime   = zeros(1, height(thisRetRun));
+    OnsetTime = zeros(1, length(trials2run));
+    resp      = cell(1, length(trials2run));
+    RespTime  = zeros(1, length(trials2run));
 
 %-- Create the Keyboard Queue (see KbQueue documentation), restricting
 %   responses
     
-    rep_device = -1;
-    keylist = zeros(1, 256);
-    keylist([KbName('1!') KbName('2@') KbName('3#') KbName('4$')]) = 1;
+    rep_device     = -1;
+    keylist        = zeros(1, 256);
+    keylist([KbName('1!') KbName('2@')]) = 1;
     KbQueueCreate(rep_device, keylist);
     
 % Establish global variables
     
-    global W X Y
-
-%%
-%==========================================================================
-%				Instructions
-%==========================================================================
-% Display instructions and wait for a one of the instructions keys (i.e.,
-% IN_keylist, see init_psychtoolbox). Written in a for loop to display
-% multiple instructions screens, if desired.
-
-for i = 1:length(instructions)
-    
-    instructions_screen(instructions{i}, directions, YN.instructAutoSkip);
-    
-end
+    global W X Y fast
 
 %%
 %==========================================================================
@@ -78,8 +63,8 @@ end
 
 Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
 Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);      
-expstart = Screen('Flip', W);
-WaitSecs(2 * fast);
+Screen('Flip', W);
+WaitSecs(preFix * fast);
 
 %%
 %==========================================================================
@@ -88,36 +73,65 @@ WaitSecs(2 * fast);
 % Retreival Routine
 
 % For each trial in thisRetRun...
-for curTrial = 1:height(thisRetRun)
+for curTrial = trials2run
     
-    %-- Context Preexposure
+        
+    %-- Trial Parameters
+    
+        trialTime    = Retrieval.StimulusDuration(curTrial)/1000;
+        fixationTime = Retrieval.FixationDuration(curTrial)/1000;
+        
+        if strcmp(Retrieval.Present(curTrial), 'SideBySide')
+            
+            if strcmp(Retrieval.SceneOrFaceLeft(curTrial), 'FaceLeft')
+            
+                Side = RectLeft;
+                off  = offset;
+                
+            elseif strcmp(Retrieval.SceneOrFaceLeft(curTrial), 'SceneLeft')
+            
+                Side   = RectRight;
+                off    = -offset;
+                
+            end
+            
+        elseif strcmp(Retrieval.Present(curTrial), 'Superimposed')
+            
+            Side   = RectBottom;
+            off    = 0;
+            
+        end
+    
+    %-- Draw the Context
+    
+        % Where is the Context Stimuli going?
+        SceneRect    = CenterRectOnPoint([0 0 SceneSize], X/2, Y/2);
+        SceneRect    = OffsetRect(SceneRect, off, 0);
+        
+        % Draw Context Stimuli
+        Screen('DrawTexture', W, Retrieval.Sceneid(curTrial), [], SceneRect);              
+        
+    %-- Draw the Item
 
-        % Where is the Context stimuli going?
-        ImageRect = CenterRectOnPoint([0 0 1200 800], X/2, Y/2);
+        % Where is the Item Stimuli going?
+        FaceRect = CenterRectOnPoint([0 0 FaceSize], X/2, Y/2);
+        if strcmp(Retrieval.Present(curTrial), 'Superimposed')
+            FaceRect = AlignRect(FaceRect, SceneRect, Side);
+        else
+            FaceRect = AdjoinRect(FaceRect, SceneRect, Side);
+        end
         
-        % Draw Context
-        Screen('DrawTexture', W, thisRetRun.ContextimID(curTrial), [], ImageRect);
+        % Draw Item Stimuli
+        Screen('DrawTexture', W, Retrieval.Faceid(curTrial), [], FaceRect);
         
-        % Flip Screen WITHOUT clearing the buffer (see Screen Flip
-        % documentation) and wait 1/2 of a second
-        Screen(W, 'Flip', [], 1);
-        WaitSecs(0.5);
+    %-- Draw the Text
+    
+        % Trial Instructions
+        [~, ny, bbox] = DrawFormattedText(W, trial_instructions, 'center', SceneRect(RectBottom) + 100);
+        bboxH = RectHeight(bbox); % height of the text box
         
-    %-- Draw the Item on Top of Context
-
-        % Where is the Item stimuli going?
-        ImageRect = CenterRectOnPoint([0 0 ImgSize ImgSize], X/2, Y/2);
-        
-        % Draw Item
-        Screen('DrawTexture', W, thisRetRun.ItemimID(curTrial), [], ImageRect);
-        
-    %-- Draw ITEM Task Message
-        
-        % Task Message
-        message = 'Remember?\n\n1 = Def New      |     2 = Prob New     |   3 = Prob Old   |   4 = Def Old';
-        
-        % Draw Task Message
-        DrawFormattedText(W, message, 'center', 9*(Y/10));
+        % Scale
+        DrawFormattedText(W, response_scale, 'center', ny + bboxH + 10);     
         
     %-- Start KbQueue and Flip Screen      
         
@@ -127,61 +141,10 @@ for curTrial = 1:height(thisRetRun)
         KbQueueStart(rep_device);
         
         % Flip Screen and Record Onset Time
-        ITEM_OnsetTime(curTrial) = Screen(W, 'Flip');
+        OnsetTime(curTrial) = Screen(W, 'Flip');
         
         % Wait "picTime"
-        WaitSecs(picTime * fast);
-        
-    %-- Record Responses
-    
-        [ITEM_resp{curTrial}, ITEM_RespTime(curTrial)] = record_responses();
-    
-    %-- Optional Emotional Source Question
-        
-        if any(strcmp(ITEM_resp{curTrial}, {'3#' ,'4$'}))
-
-            %--Draw the Context Image
-
-                % Where is the context stimuli going?
-                ImageRect = CenterRectOnPoint([0 0 1200 800], X/2, Y/2);
-
-                % Draw Context
-                Screen('DrawTexture', W, thisRetRun.ContextimID(curTrial), [], ImageRect);    
-
-            %--Draw the Item on top of Context
-
-                % Where is the Item stimuli going?
-                ImageRect = CenterRectOnPoint([0 0 ImgSize ImgSize], X/2, Y/2);
-
-                % Draw Item
-                Screen('DrawTexture', W, thisRetRun.ItemimID(curTrial), [], ImageRect);
-
-            %-- Draw Task Message
-
-                % Task Message
-                message = 'Safe or Startle?\n\n1 = Def Safe      |     2 = Prob Safe     |   3 = Prob Startle   |   4 = Def Startle';
-
-                % Draw Task Message
-                DrawFormattedText(W, message, 'center', 9*(Y/10));
-                
-            %-- Start KbQueue and Flip Screen
-
-                % Flush and start the Psychtoolbox Keyboard Queue. See KbQueue*
-                % documentation
-                KbQueueFlush(rep_device);
-                KbQueueStart(rep_device);
-
-                % Flip Screen and Record Onset Time
-                EMO_OnsetTime(curTrial) = Screen(W, 'Flip');
-
-                % Wait "emoTime"
-                WaitSecs(emoTime * fast);
-
-            %-- Record Responses
-            
-                [EMO_resp{curTrial}, EMO_RespTime(curTrial)] = record_responses();
-            
-        end
+        WaitSecs(trialTime * fast);      
         
     %-- Post Trial Fixation
         
@@ -193,7 +156,14 @@ for curTrial = 1:height(thisRetRun)
         Screen(W, 'Flip');
         
         % Wait fixTime
-        WaitSecs(fixTime * fast);
+        WaitSecs(1 * fast);
+        
+    %-- Record Responses
+    
+        [resp{curTrial}, RespTime(curTrial)] = record_responses();
+        
+        % Wait rest of fixationTime
+        WaitSecs(fixationTime - 1 * fast);
 
 end
 
@@ -201,6 +171,11 @@ end
 %==========================================================================
 %                       Post Run
 %==========================================================================
+
+Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
+Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);      
+Screen('Flip', W);
+WaitSecs(postFix * fast);
 
 % Release the KbQueue. See KbQueue* documentation
 KbQueueRelease(rep_device);
@@ -225,20 +200,18 @@ KbQueueRelease(rep_device);
 %
 %   subj:      the subject's ID
 
-% ITEM
-thisRetRun.ITEMOnset     = ITEM_OnsetTime' - expstart;
-thisRetRun.ITEMresp      = ITEM_resp';
-thisRetRun.ITEMresp_time = ITEM_RespTime' - expstart;
-thisRetRun.ITEMrt        = ITEM_RespTime' - ITEM_OnsetTime';
+thisRetRun = Retrieval(Retrieval.Run == run, :);
 
-% EMO
-thisRetRun.EMOOnset     = EMO_OnsetTime' - expstart;
-thisRetRun.EMOresp      = EMO_resp';
-thisRetRun.EMOresp_time = EMO_RespTime' - expstart;
-thisRetRun.EMOrt        = EMO_RespTime' - EMO_OnsetTime';
+% ITEM
+thisRetRun.Onset        = OnsetTime' - triggerTime;
+thisRetRun.Response     = resp';
+thisRetRun.ResponseTime = RespTime' - triggerTime;
+thisRetRun.rt           = RespTime' - OnsetTime';
 
 thisRetRun.subj         = repmat({subject}, height(thisRetRun), 1);
 
 % Write the ret List for this round to a .csv file in the local directory 
 % "./data"
-writetable(thisRetRun, fullfile('.','data',['emoticon_retreival_' subject '_' num2str(retcount) '_' TimeStamp '.csv']));
+writetable(thisRetRun, fullfile('.','data',['icee_retrieval_' subject '_' num2str(run) '_' TimeStamp '.csv']));
+
+end
