@@ -65,6 +65,10 @@ end
 Screen('TextSize', W, 30);
 Screen('TextColor', W, 255);
 
+% Loading Screen
+DrawFormattedText(W, 'Loading Experiment...', 'center', 'center');
+Screen('Flip', W);
+
 %%
 %====================================================================================
 %							Other Settings
