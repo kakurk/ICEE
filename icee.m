@@ -25,8 +25,8 @@ subject  = input('Enter subject ID: ','s');
 % Hard coded yes/no variables:
 % y = yes
 % n = no
-YN.enc  = 'y';              % run encoding
-YN.ret  = 'n';              % run retrieval
+YN.enc  = 'n';              % run encoding
+YN.ret  = 'y';              % run retrieval
 YN.instructAutoSkip = 'n';  % autoskip instruction screens
 
 % Initalize Psychtoolbox
@@ -70,6 +70,11 @@ try
     % For each run...
     for crun = 1:nruns
         
+        %-- Encoding Instructions Screen
+        instructions = 'Encoding\n\nMake your welcoming decision as quickly and accurately as you can';
+        directions   = ' ';
+        instructions_screen(instructions, directions, 'n', KbName('space'), -1, 0);
+        
         %-- Trigger Screen
         instructions = 'Waiting for the scanner...';
         directions   = ' ';
@@ -77,9 +82,14 @@ try
         
         %-- Run Encoding
         if strcmp(YN.enc, 'y')              
-            encoding(Encoding, crun);
+            encoding(Encoding, crun, triggerTime);
         end
-
+        
+        %-- Retrieval Instructions Screen
+        instructions = 'Retrieval\n\nMake your memory decision as quickly and accurately as you can';
+        directions   = ' ';
+        instructions_screen(instructions, directions, 'n', KbName('space'), -1, 0);
+        
         %-- Trigger Screen
         instructions = 'Waiting for the scanner...';
         directions   = ' ';
@@ -87,7 +97,7 @@ try
         
         %-- Run Retrieval
         if strcmp(YN.ret, 'y')
-            retreival(Retrieval, crun);
+            retrieval(Retrieval, crun, triggerTime);
         end
 
     end
