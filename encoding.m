@@ -1,4 +1,4 @@
-function [] = encoding(Encoding, run)
+function [] = encoding(Encoding, run, triggerTime)
 %% ICEE Encoding:
 % Called by icee.m
 % Written by Kyle Kurkela, kyleakurkela@gmail.com June 2017
@@ -9,11 +9,6 @@ function [] = encoding(Encoding, run)
 %==========================================================================
 
 %-- Instructions
-    
-    % Instructions Message
-    instructions = {
-        'View Round\n\nAnswer the questions as quickly and accurately as you can'
-    };
 
     % trial-by-trial instructions
     trial_instructions      = 'How welcoming are the scene and face?';
@@ -58,21 +53,6 @@ function [] = encoding(Encoding, run)
 
 %%
 %==========================================================================
-%				Instructions
-%==========================================================================
-% Display instructions and wait for a participant's response before 
-% continuing. Please see instructions_screen documentation for more 
-% details. Written in a for loop to display multiple instructions screens,
-% if desired.
-
-for i = 1:length(instructions)
-    
-    instructions_screen(instructions{i}, ' ', 'n', [KbName('1!')]);
-    
-end
-
-%%
-%==========================================================================
 %				Pre Run Fixation
 %==========================================================================
 % Draw a fixation cross to the exact center of the screen. Update the 
@@ -82,7 +62,7 @@ end
 
 Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
 Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);
-expstart = Screen('Flip', W);
+Screen('Flip', W);
 WaitSecs(preFix * fast);
 
 %%
@@ -225,9 +205,9 @@ KbQueueRelease(rep_device);
 
 thisEncRun              = Encoding(Encoding.Run == run, :);
 
-thisEncRun.Onset        = OnsetTime' - expstart;
+thisEncRun.Onset        = OnsetTime' - triggerTime;
 thisEncRun.Response     = resp';
-thisEncRun.ResponseTime = resp_time' - expstart;
+thisEncRun.ResponseTime = resp_time' - triggerTime;
 thisEncRun.rt           = resp_time' - OnsetTime';
 thisEncRun.SubjectID    = repmat({subject}, height(thisEncRun), 1);
 
