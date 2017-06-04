@@ -15,13 +15,18 @@
 clear
 addpath(genpath([fileparts(mfilename('fullpath')) filesep 'functions']))
 
+% Establish Global Variables that will span this script, init_psychtoolbox.m,
+% encoding.m, and retrieval.m
+global Subject TimeStamp Fast
+
 % Ask the user for input
 % DBmode   = Debugging Mode (smaller screen)
 % subject  = subject number
 
 DBmode   = input('Debug mode? y/n: ','s');
-global subject
-subject  = input('Enter subject ID: ','s');
+Subject  = input('Enter subject ID: ','s');
+nRuns    = 4;
+rep_device = -1;
 
 % Hard coded yes/no variables:
 % y = yes
@@ -30,19 +35,17 @@ YN.enc  = 'y';              % run encoding
 YN.ret  = 'y';              % run retrieval
 YN.instructAutoSkip = 'n';  % autoskip instruction screens
 
-% Initalize Psychtoolbox
+% Initalize Psychtoolbox, see init_psychtoolbox
 init_psychtoolbox(DBmode);
 
 % Time Stamp
-global TimeStamp
 TimeStamp = [datestr(clock,'yyyy-mm-dd-HHMM') datestr(clock,'ss')];
 
 % if running debug mode, make the experiment go faster
-global fast
 if strcmp(DBmode, 'y')
-    fast = .5; % .5 = 2x as fast, .1 = 10x as fast, 1 = real time, ect.
+    Fast = .5; % .5 = 2x as fast, .1 = 10x as fast, 1 = real time, ect.
 else
-    fast = 1;
+    Fast = 1;
 end
 
 %% Run Experiment
@@ -65,41 +68,41 @@ try
     Encoding  = preload_stim(Encoding, stimdir, 'SceneStim');
     Retrieval = preload_stim(Retrieval, stimdir, 'Face');
     Retrieval = preload_stim(Retrieval, stimdir, 'Scene');
-  
-    % number of runs
-    nruns = 4;
     
     % For each run...
-    for crun = 1:nruns
+    for iRun = 1:nRuns
         
         %-- Encoding Instructions Screen
         instructions = 'Encoding\n\nMake your welcoming decision as quickly and accurately as you can';
         directions   = ' ';
-        instructions_screen(instructions, directions, 'n', KbName('space'), -1, 0);
+        instructions_screen(instructions, directions);
         
         %-- Trigger Screen
+        % looks for a lowercase 't' as the trigger
         instructions = 'Waiting for the scanner...';
         directions   = ' ';
-        triggerTime  = instructions_screen(instructions, directions, YN.instructAutoSkip, KbName('t'), -1, 0);
+        KeyboardKeys = [KbName('t') KbName('escape')];
+        triggerTime  = instructions_screen(instructions, directions, [], KeyboardKeys);
         
         %-- Run Encoding
-        if strcmp(YN.enc, 'y')              
-            encoding(Encoding, crun, triggerTime);
+        if strcmp(YN.enc, 'y')
+            encoding(Encoding, iRun, triggerTime);
         end
         
         %-- Retrieval Instructions Screen
         instructions = 'Retrieval\n\nMake your memory decision as quickly and accurately as you can';
         directions   = ' ';
-        instructions_screen(instructions, directions, 'n', KbName('space'), -1, 0);
+        instructions_screen(instructions, directions);
         
         %-- Trigger Screen
         instructions = 'Waiting for the scanner...';
         directions   = ' ';
-        triggerTime  = instructions_screen(instructions, directions, YN.instructAutoSkip, KbName('t'), -1, 0);        
+        KeyboardKeys = [KbName('t') KbName('escape')];
+        triggerTime  = instructions_screen(instructions, directions, [], KeyboardKeys);        
         
         %-- Run Retrieval
         if strcmp(YN.ret, 'y')
-            retrieval(Retrieval, crun, triggerTime);
+            retrieval(Retrieval, iRun, triggerTime);
         end
 
     end
@@ -109,11 +112,6 @@ try
     % Close all PTB screens (sca) and show the cursor again (ShowCursor)
     sca;
     ShowCursor;
-    
-    % If we are using a PC, show the task bar at the bottom
-    if strcmp(computer,'PCWIN')
-        ShowHideWinTaskbarMex(1);
-    end
     
     % Close all files that are currently open in MATLAB, set the priority
     % back to zero, and allow keystrokes to enter MATLAB's Command Window
@@ -130,11 +128,6 @@ catch
     % Close all PTB screens (sca) and show the cursor again (ShowCursor) 
     sca;
     ShowCursor;
-    
-    % If we are using a PC, show the task bar at the bottom    
-    if strcmp(computer,'PCWIN')
-        ShowHideWinTaskbarMex(1);
-    end
     
     % Close all files that are currently open in MATLAB, set the priority
     % back to zero, and allow keystrokes to enter MATLAB's Command Window

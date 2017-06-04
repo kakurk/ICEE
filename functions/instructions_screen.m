@@ -1,5 +1,9 @@
 function [secs] = instructions_screen(varargin)
-
+% instructions_screen  draw an instructions screen to the current PTB window
+%
+%   intructions_screen(instructions, directions, [,autoSkip], [,keys], [,resp_device], [,buffer], [autoskipWait])
+%
+% Written by Kyle Kurkela, kyleakurkela@gmail.com. June, 2017
 %% Parse Input Arguments
     
     global W Y
@@ -32,8 +36,7 @@ function [secs] = instructions_screen(varargin)
         [secs, keycode, ~] = KbStrokeWait(resp_device);
         
         if keycode(KbName('escape')) == 1
-            sca
-            return
+            error('Experiment Quit')
         end
         
         RestrictKeysForKbCheck([]);

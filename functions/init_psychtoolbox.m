@@ -8,15 +8,21 @@ function init_psychtoolbox(DBmode)
 %                               Misc
 %==========================================================================
 
+% Global Variables to Set
+global X Y W
+
+% Loading Psych HID
+LoadPsychHID;
+
 % Check for Opengl compatibility, abort otherwise
 AssertOpenGL;
 
-% Reseed the random-number generator for each Experiment
-rng('shuffle', 'v5uniform');
+% Shuffle the random-number generator for each experiment
+rng('shuffle');
 
 % Turn off the Sync Tests, the visual debugging and warnings and general
 % verbosity of PTB
-Screen('Preference', 'SkipSyncTests', 1);
+Screen('Preference', 'SkipSyncTests', 2);
 Screen('Preference', 'VisualDebugLevel', 0);
 Screen('Preference', 'SuppressAllWarnings', 1);
 Screen('Preference', 'Verbosity', 0);
@@ -32,6 +38,8 @@ HideCursor;
 % systems
 KbName('UnifyKeyNames');
 
+% Temporary
+ResponseDevice = 1; 
 
 %%
 %==========================================================================
@@ -42,8 +50,6 @@ KbName('UnifyKeyNames');
 % which is usually the right one.
 screens      = Screen('Screens');
 screenNumber = max(screens);
-
-global X Y W 
 
 % Open a double buffered fullscreen window on the stimulation screen
 % 'screenNumber' and use background color specified in settings
@@ -65,21 +71,11 @@ end
 Screen('TextSize', W, 30);
 Screen('TextColor', W, 255);
 
-% Loading Screen
-DrawFormattedText(W, 'Loading Experiment...', 'center', 'center');
-Screen('Flip', W);
-
-%%
-%====================================================================================
-%							Other Settings
-%====================================================================================
-
 % Set priority for script execution to realtime priority
 Priority(MaxPriority(W));
 
-% If we are using a Windows machine, hide the task bar
-if strcmp(computer,'PCWIN') == 1
-    ShowHideWinTaskbarMex(0);
-end
+% Loading Screen
+DrawFormattedText(W, 'Loading Experiment...', 'center', 'center');
+Screen('Flip', W);
 
 end

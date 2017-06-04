@@ -1,4 +1,4 @@
-function [] = encoding(Encoding, run, triggerTime)
+function [] = encoding(EncodingList, iRun, triggerTime)
 %% ICEE Encoding:
 % Called by icee.m
 % Written by Kyle Kurkela, kyleakurkela@gmail.com June 2017
@@ -7,6 +7,14 @@ function [] = encoding(Encoding, run, triggerTime)
 %==========================================================================
 %				Settings
 %==========================================================================
+
+%-- Establish global variables
+    
+    % PTB Window Parameters
+    global W X Y
+    
+    % Experiment Parameters
+    global Fast Subject TimeStamp
 
 %-- Instructions
 
@@ -21,18 +29,19 @@ function [] = encoding(Encoding, run, triggerTime)
     FaceSize      = [256 256];
     SceneSize     = [640 480];
     
-    % How much to offset the scene image away from the center.
+    % How much to offset the scene image away from the center of the screen
+    % in the x-axis (i.e., left and right) in the II condition
     offset        = 200;
     
-    % The amount of time the pre run fixation is displayed (s)
+    % The amount of time the pre-run fixation is displayed (s)
     preFix        = 2;
     
-    % The amount of time the post run fixation is displayed (s)
+    % The amount of time the post-run fixation is displayed (s)
     postFix       = 2;
     
-%-- Define trials to run
+%-- A vector of the indices of the Encoding List to run
     
-    trials2run = find(Encoding.Run == run)';
+    trials2run = find(EncodingList.Run == iRun)';
     
 %-- Initialize Response Recorder Variables
 
@@ -41,15 +50,17 @@ function [] = encoding(Encoding, run, triggerTime)
     resp_time    = zeros(1, length(trials2run));
 
 %-- Create the Keyboard Queue (see KbQueue documentation), restricting
-%   responses to the ENC_keylist keys (see init_psychtoolbox)
-    rep_device                           = -1;
-    keylist                              = zeros(1, 256);
-    keylist([KbName('1!') KbName('2@') KbName('3#') KbName('4$')]) = 1;
-    KbQueueCreate(rep_device, keylist)
+%   responses to the `keylist` keys.
+%       rep_device = a number, which corresponds to the device which
+%                    corresponds to the button box
+%       keys2record = a vector of the Keyboard Keys to record during each
+%                     trial
+    rep_device           = 1;
+    keys2record          = [KbName('1!') KbName('2@') KbName('3#') KbName('4$')];
     
-%-- Establish global variables
-
-    global W X Y fast subject TimeStamp
+    keylist              = zeros(1, 256);
+    keylist(keys2record) = 1;
+    KbQueueCreate(rep_device, keylist)
 
 %%
 %==========================================================================
@@ -63,7 +74,7 @@ function [] = encoding(Encoding, run, triggerTime)
 Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
 Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);
 Screen('Flip', W);
-WaitSecs(preFix * fast);
+WaitSecs(preFix * Fast);
 
 %%
 %==========================================================================
@@ -76,24 +87,26 @@ for curTrial = trials2run
     
     %-- Trial Parameters
     
-        trialTime    = Encoding.StudyStimulus_Duration(curTrial) / 1000;
-        fixationTime = Encoding.Fixation_Duration(curTrial) / 1000;
+        % timing parameters
+        trialTime    = EncodingList.StudyStimulus_Duration(curTrial) / 1000;
+        fixationTime = EncodingList.Fixation_Duration(curTrial) / 1000;
         
-        if strcmp(Encoding.EncodingCond(curTrial), 'II')
+        % condition parameters
+        if strcmp(EncodingList.EncodingCond(curTrial), 'II')
             
-            if strcmp(Encoding.SceneOrFaceLeft(curTrial), 'FaceLeft')
+            if strcmp(EncodingList.SceneOrFaceLeft(curTrial), 'FaceLeft')
             
                 Side = RectLeft;
                 off  = offset;
                 
-            elseif strcmp(Encoding.SceneOrFaceLeft(curTrial), 'SceneLeft')
+            elseif strcmp(EncodingList.SceneOrFaceLeft(curTrial), 'SceneLeft')
             
                 Side   = RectRight;
                 off    = -offset;
                 
             end
             
-        elseif strcmp(Encoding.EncodingCond(curTrial), 'IC')
+        elseif strcmp(EncodingList.EncodingCond(curTrial), 'IC')
             
             Side   = RectBottom;
             off    = 0;
@@ -107,20 +120,20 @@ for curTrial = trials2run
         SceneRect    = OffsetRect(SceneRect, off, 0);
         
         % Draw Context Stimuli
-        Screen('DrawTexture', W, Encoding.SceneStimid(curTrial), [], SceneRect);              
+        Screen('DrawTexture', W, EncodingList.SceneStimid(curTrial), [], SceneRect);              
         
     %-- Draw the Item
 
         % Where is the Item Stimuli going?
         FaceRect = CenterRectOnPoint([0 0 FaceSize], X/2, Y/2);
-        if strcmp(Encoding.EncodingCond(curTrial), 'IC')
+        if strcmp(EncodingList.EncodingCond(curTrial), 'IC')
             FaceRect = AlignRect(FaceRect, SceneRect, Side);
         else
             FaceRect = AdjoinRect(FaceRect, SceneRect, Side);
         end
         
         % Draw Item Stimuli
-        Screen('DrawTexture', W, Encoding.FaceStimid(curTrial), [], FaceRect);
+        Screen('DrawTexture', W, EncodingList.FaceStimid(curTrial), [], FaceRect);
         
     %-- Draw the Text
     
@@ -143,7 +156,7 @@ for curTrial = trials2run
         OnsetTime(curTrial) = Screen(W, 'Flip');
         
         % Wait "trialTime"
-        WaitSecs(trialTime * fast);
+        WaitSecs(trialTime * Fast);
         
     %-- Post Trial Fixation
     
@@ -151,13 +164,13 @@ for curTrial = trials2run
         Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
         Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);        
         Screen(W, 'Flip');
-        WaitSecs(1 * fast);
+        WaitSecs(1 * Fast);
         
         % Record Responses
-        [resp{curTrial}, resp_time(curTrial)] = record_responses();
+        [resp{curTrial}, resp_time(curTrial)] = record_responses(rep_device);
         
         % Wait the rest of the sceduled fixation time
-        WaitSecs((fixationTime - 1) * fast);
+        WaitSecs((fixationTime - 1) * Fast);
         
     %-- Post Trial Cleanup
         
@@ -178,7 +191,7 @@ end
 Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
 Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);
 Screen(W, 'Flip');
-WaitSecs(postFix * fast);
+WaitSecs(postFix * Fast);
 
 % Release the KbQueue. See KbQueue* documentation
 KbQueueRelease(rep_device);
@@ -203,16 +216,16 @@ KbQueueRelease(rep_device);
 %
 %   subj:      the subject's ID
 
-thisEncRun              = Encoding(Encoding.Run == run, :);
+thisEncRun              = EncodingList(EncodingList.Run == iRun, :);
 
 thisEncRun.Onset        = OnsetTime' - triggerTime;
 thisEncRun.Response     = resp';
 thisEncRun.ResponseTime = resp_time' - triggerTime;
 thisEncRun.rt           = resp_time' - OnsetTime';
-thisEncRun.SubjectID    = repmat({subject}, height(thisEncRun), 1);
+thisEncRun.SubjectID    = repmat({Subject}, height(thisEncRun), 1);
 
 % Write the Enc List for this round to a .csv file in the local directory 
 % "./data"
-writetable(thisEncRun, fullfile('.','data',['icee_encoding_' subject '_' num2str(run) '_' TimeStamp '.csv']));
+writetable(thisEncRun, fullfile('.','data',['icee_encoding_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
 
 end

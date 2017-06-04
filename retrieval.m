@@ -1,4 +1,4 @@
-function retrieval(Retrieval, run, triggerTime)
+function retrieval(RetrievalList, iRun, triggerTime)
 %% ICEE Retreival:
 % Called by icee.m
 % Written by Kyle Kurkela, kyleakurkela@gmail.com June 2017
@@ -7,6 +7,11 @@ function retrieval(Retrieval, run, triggerTime)
 %==========================================================================
 %				Settings
 %==========================================================================
+
+% Establish global variables
+    
+    global W X Y 
+    global Fast Subject TimeStamp
 
 %-- Instructions
 
@@ -29,28 +34,25 @@ function retrieval(Retrieval, run, triggerTime)
     % The amount of time the post run fixation is displayed (s)
     postFix       = 2;
     
-%-- Define trials to run
+%-- a vector of the trial indices to run in RetrievalList
     
-    trials2run = find(Retrieval.Run == run)';    
+    trials2run = find(RetrievalList.Run == iRun)';    
 
 %-- Initialize Response Recorder Variables
 
     % ITEM
     OnsetTime = zeros(1, length(trials2run));
-    resp      = cell(1, length(trials2run));
+    Response  = cell(1, length(trials2run));
     RespTime  = zeros(1, length(trials2run));
 
 %-- Create the Keyboard Queue (see KbQueue documentation), restricting
 %   responses
     
-    rep_device     = -1;
-    keylist        = zeros(1, 256);
-    keylist([KbName('1!') KbName('2@')]) = 1;
+    rep_device           = 1;
+    keylist              = zeros(1, 256);
+    keys2record          = [KbName('1!') KbName('2@')];
+    keylist(keys2record) = 1;
     KbQueueCreate(rep_device, keylist);
-    
-% Establish global variables
-    
-    global W X Y fast subject TimeStamp
 
 %%
 %==========================================================================
@@ -64,7 +66,7 @@ function retrieval(Retrieval, run, triggerTime)
 Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
 Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);      
 Screen('Flip', W);
-WaitSecs(preFix * fast);
+WaitSecs(preFix * Fast);
 
 %%
 %==========================================================================
@@ -78,24 +80,24 @@ for curTrial = trials2run
         
     %-- Trial Parameters
     
-        trialTime    = Retrieval.StimulusDuration(curTrial)/1000;
-        fixationTime = Retrieval.FixationDuration(curTrial)/1000;
+        trialTime    = RetrievalList.StimulusDuration(curTrial)/1000;
+        fixationTime = RetrievalList.FixationDuration(curTrial)/1000;
         
-        if strcmp(Retrieval.Present(curTrial), 'SideBySide')
+        if strcmp(RetrievalList.Present(curTrial), 'SideBySide')
             
-            if strcmp(Retrieval.SceneOrFaceLeft(curTrial), 'FaceLeft')
+            if strcmp(RetrievalList.SceneOrFaceLeft(curTrial), 'FaceLeft')
             
                 Side = RectLeft;
                 off  = offset;
                 
-            elseif strcmp(Retrieval.SceneOrFaceLeft(curTrial), 'SceneLeft')
+            elseif strcmp(RetrievalList.SceneOrFaceLeft(curTrial), 'SceneLeft')
             
                 Side   = RectRight;
                 off    = -offset;
                 
             end
             
-        elseif strcmp(Retrieval.Present(curTrial), 'Superimposed')
+        elseif strcmp(RetrievalList.Present(curTrial), 'Superimposed')
             
             Side   = RectBottom;
             off    = 0;
@@ -109,20 +111,20 @@ for curTrial = trials2run
         SceneRect    = OffsetRect(SceneRect, off, 0);
         
         % Draw Context Stimuli
-        Screen('DrawTexture', W, Retrieval.Sceneid(curTrial), [], SceneRect);              
+        Screen('DrawTexture', W, RetrievalList.Sceneid(curTrial), [], SceneRect);              
         
     %-- Draw the Item
 
         % Where is the Item Stimuli going?
         FaceRect = CenterRectOnPoint([0 0 FaceSize], X/2, Y/2);
-        if strcmp(Retrieval.Present(curTrial), 'Superimposed')
+        if strcmp(RetrievalList.Present(curTrial), 'Superimposed')
             FaceRect = AlignRect(FaceRect, SceneRect, Side);
         else
             FaceRect = AdjoinRect(FaceRect, SceneRect, Side);
         end
         
         % Draw Item Stimuli
-        Screen('DrawTexture', W, Retrieval.Faceid(curTrial), [], FaceRect);
+        Screen('DrawTexture', W, RetrievalList.Faceid(curTrial), [], FaceRect);
         
     %-- Draw the Text
     
@@ -144,7 +146,7 @@ for curTrial = trials2run
         OnsetTime(curTrial) = Screen(W, 'Flip');
         
         % Wait "picTime"
-        WaitSecs(trialTime * fast);      
+        WaitSecs(trialTime * Fast);      
         
     %-- Post Trial Fixation
         
@@ -156,14 +158,14 @@ for curTrial = trials2run
         Screen(W, 'Flip');
         
         % Wait fixTime
-        WaitSecs(1 * fast);
+        WaitSecs(1 * Fast);
         
     %-- Record Responses
     
-        [resp{curTrial}, RespTime(curTrial)] = record_responses();
+        [Response{curTrial}, RespTime(curTrial)] = record_responses(rep_device);
         
         % Wait rest of fixationTime
-        WaitSecs(fixationTime - 1 * fast);
+        WaitSecs(fixationTime - 1 * Fast);
 
 end
 
@@ -175,7 +177,7 @@ end
 Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
 Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);      
 Screen('Flip', W);
-WaitSecs(postFix * fast);
+WaitSecs(postFix * Fast);
 
 % Release the KbQueue. See KbQueue* documentation
 KbQueueRelease(rep_device);
@@ -200,18 +202,18 @@ KbQueueRelease(rep_device);
 %
 %   subj:      the subject's ID
 
-thisRetRun = Retrieval(Retrieval.Run == run, :);
+thisRetRun = RetrievalList(RetrievalList.Run == iRun, :);
 
 % ITEM
 thisRetRun.Onset        = OnsetTime' - triggerTime;
-thisRetRun.Response     = resp';
+thisRetRun.Response     = Response';
 thisRetRun.ResponseTime = RespTime' - triggerTime;
 thisRetRun.rt           = RespTime' - OnsetTime';
 
-thisRetRun.subj         = repmat({subject}, height(thisRetRun), 1);
+thisRetRun.subj         = repmat({Subject}, height(thisRetRun), 1);
 
 % Write the ret List for this round to a .csv file in the local directory 
 % "./data"
-writetable(thisRetRun, fullfile('.','data',['icee_retrieval_' subject '_' num2str(run) '_' TimeStamp '.csv']));
+writetable(thisRetRun, fullfile('.','data',['icee_retrieval_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
 
 end
