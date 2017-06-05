@@ -59,7 +59,7 @@ function [] = encoding(EncodingList, iRun, triggerTime)
 %       keys2record = a vector of the Keyboard Keys to record during each
 %                     trial
     rep_device           = 1;
-    keys2record          = [KbName('1!') KbName('2@') KbName('3#') KbName('4$')];
+    keys2record          = [KbName('1!') KbName('2@') KbName('3#') KbName('4$') KbName('escape')];
     
     keylist              = zeros(1, 256);
     keylist(keys2record) = 1;

@@ -35,6 +35,10 @@ function [response, response_time] = record_responses(varargin)
             response  = strjoin(response);
         end
         
+        if strcmpi(response, 'escape')
+            error('Quit Experiment')
+        end
+        
     else
 
         % No Response Trial

@@ -50,7 +50,7 @@ function retrieval(RetrievalList, iRun, triggerTime)
     
     rep_device           = 1;
     keylist              = zeros(1, 256);
-    keys2record          = [KbName('1!') KbName('2@')];
+    keys2record          = [KbName('1!') KbName('2@') KbName('escape')];
     keylist(keys2record) = 1;
     KbQueueCreate(rep_device, keylist);
 
