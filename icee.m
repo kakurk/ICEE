@@ -43,7 +43,7 @@ TimeStamp = [datestr(clock,'yyyy-mm-dd-HHMM') datestr(clock,'ss')];
 
 % if running debug mode, make the experiment go faster
 if strcmp(DBmode, 'y')
-    Fast = .5; % .5 = 2x as fast, .1 = 10x as fast, 1 = real time, ect.
+    Fast = .1; % .5 = 2x as fast, .1 = 10x as fast, 1 = real time, ect.
 else
     Fast = 1;
 end
@@ -88,6 +88,16 @@ try
         if strcmp(YN.enc, 'y')
             encoding(Encoding, iRun, triggerTime);
         end
+        
+        %-- Screen 1
+        instructions = 'INSERT TEXT HERE';
+        directions   = ' ';
+        instructions_screen(instructions, directions);  
+        
+        %-- Screen 2
+        instructions = 'INSERT TEXT HERE';
+        directions   = ' ';
+        instructions_screen(instructions, directions);           
         
         %-- Retrieval Instructions Screen
         instructions = 'Retrieval\n\nMake your memory decision as quickly and accurately as you can';
