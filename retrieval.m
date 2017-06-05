@@ -74,9 +74,11 @@ WaitSecs(preFix * Fast);
 %==========================================================================
 % Retreival Routine
 
+count = 0;
 % For each trial in thisRetRun...
 for curTrial = trials2run
     
+    count = count + 1;
         
     %-- Trial Parameters
     
@@ -143,7 +145,7 @@ for curTrial = trials2run
         KbQueueStart(rep_device);
         
         % Flip Screen and Record Onset Time
-        OnsetTime(curTrial) = Screen(W, 'Flip');
+        OnsetTime(count) = Screen(W, 'Flip');
         
         % Wait "picTime"
         WaitSecs(trialTime * Fast);      
@@ -162,7 +164,7 @@ for curTrial = trials2run
         
     %-- Record Responses
     
-        [Response{curTrial}, RespTime(curTrial)] = record_responses(rep_device);
+        [Response{count}, RespTime(count)] = record_responses(rep_device);
         
         % Wait rest of fixationTime
         WaitSecs(fixationTime - 1 * Fast);

@@ -86,7 +86,10 @@ WaitSecs(preFix * Fast);
 % Encoding Routine
 
 % For each trial to run...
+count = 0;
 for curTrial = trials2run
+    
+    count = count + 1;
     
     %-- Trial Parameters
     
@@ -159,7 +162,7 @@ for curTrial = trials2run
         KbQueueStart(rep_device);
         
         % Flip Screen and Record the Onset Time
-        OnsetTime(curTrial) = Screen(W, 'Flip');
+        OnsetTime(count) = Screen(W, 'Flip');
         
         % Wait "trialTime"
         WaitSecs(trialTime * Fast);
@@ -173,7 +176,7 @@ for curTrial = trials2run
         WaitSecs(1 * Fast);
         
         % Record Responses
-        [resp{curTrial}, resp_time(curTrial)] = record_responses(rep_device);
+        [resp{count}, resp_time(count)] = record_responses(rep_device);
         
         % Wait the rest of the sceduled fixation time
         WaitSecs((fixationTime - 1) * Fast);
