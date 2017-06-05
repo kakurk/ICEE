@@ -33,6 +33,9 @@ function [] = encoding(EncodingList, iRun, triggerTime)
     % in the x-axis (i.e., left and right) in the II condition
     offset        = 200;
     
+    % Item-Item Buffer, in pixels
+    itemitemBuffer = 50;
+    
     % The amount of time the pre-run fixation is displayed (s)
     preFix        = 2;
     
@@ -96,13 +99,15 @@ for curTrial = trials2run
             
             if strcmp(EncodingList.SceneOrFaceLeft(curTrial), 'FaceLeft')
             
-                Side = RectLeft;
-                off  = offset;
+                Side     = RectLeft;
+                off      = offset;
+                IIbuffer = -itemitemBuffer;
                 
             elseif strcmp(EncodingList.SceneOrFaceLeft(curTrial), 'SceneLeft')
             
-                Side   = RectRight;
-                off    = -offset;
+                Side     = RectRight;
+                off      = -offset;
+                IIbuffer = itemitemBuffer;
                 
             end
             
@@ -130,6 +135,7 @@ for curTrial = trials2run
             FaceRect = AlignRect(FaceRect, SceneRect, Side);
         else
             FaceRect = AdjoinRect(FaceRect, SceneRect, Side);
+            FaceRect = OffsetRect(FaceRect, IIbuffer, 0);            
         end
         
         % Draw Item Stimuli
