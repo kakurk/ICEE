@@ -34,8 +34,9 @@ for stim = uniquestim'
     filter         = strcmp(TrialList.(FNColumn), stim{:});
     
     % Preload Stimuli
-    im        = imread(fullfile(stimdir, stim{:}));
-    imID      = Screen('MakeTexture', W, im);
+    [im, ~, alpha] = imread(fullfile(stimdir, stim{:}));
+    im             = cat(3, im, alpha);
+    imID           = Screen('MakeTexture', W, im);
     
     % Assign this image ID to the trials the contain this stimuli in the
     % Encoding and Retrieval lists

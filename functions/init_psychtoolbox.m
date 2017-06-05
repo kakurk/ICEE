@@ -38,9 +38,6 @@ HideCursor;
 % systems
 KbName('UnifyKeyNames');
 
-% Temporary
-ResponseDevice = 1; 
-
 %%
 %==========================================================================
 %							PTB Screen Settings
@@ -61,6 +58,8 @@ if strcmp(DBmode, 'y')
 else
     W = Screen('OpenWindow', screenNumber, 0); % Fullscreen
 end
+
+Screen('BlendFunction', W, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 % How large is this window, in pixels?
 % X = width of the window, in pixels
