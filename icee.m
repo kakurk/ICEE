@@ -128,6 +128,9 @@ try
     fclose('all');
     Priority(0);
     ListenChar(0);
+    
+    % Compile Data
+    compile('./data')
         
 catch
  %% If something goes wrong..
