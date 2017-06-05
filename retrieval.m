@@ -164,7 +164,11 @@ for curTrial = trials2run
         
     %-- Record Responses
     
-        [Response{count}, RespTime(count)] = record_responses(rep_device);
+        [Response{count}, RespTime(count), isEsc] = record_responses(rep_device);
+        
+        if isEsc
+            break
+        end
         
         % Wait rest of fixationTime
         WaitSecs(fixationTime - 1 * Fast);
@@ -176,10 +180,14 @@ end
 %                       Post Run
 %==========================================================================
 
+if ~isEsc
+
 Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
 Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);      
 Screen('Flip', W);
 WaitSecs(postFix * Fast);
+
+end
 
 % Release the KbQueue. See KbQueue* documentation
 KbQueueRelease(rep_device);
@@ -217,5 +225,9 @@ thisRetRun.subj         = repmat({Subject}, height(thisRetRun), 1);
 % Write the ret List for this round to a .csv file in the local directory 
 % "./data"
 writetable(thisRetRun, fullfile('.','data',['icee_retrieval_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
+
+if isEsc
+    error('Experiment Escaped')
+end
 
 end

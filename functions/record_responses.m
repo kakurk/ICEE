@@ -1,4 +1,4 @@
-function [response, response_time] = record_responses(varargin)
+function [response, response_time, isEsc] = record_responses(varargin)
 
 %% Parse Input Arguments
     
@@ -12,6 +12,8 @@ function [response, response_time] = record_responses(varargin)
      filter = ~cellfun('isempty', varargin);
      settings(filter) = varargin(filter);
      [resp_device, NR_resp, NR_time] = settings{:};
+     
+     isEsc = false;
     
 %% Record Responses
 
@@ -36,7 +38,7 @@ function [response, response_time] = record_responses(varargin)
         end
         
         if strcmpi(response, 'escape')
-            error('Quit Experiment')
+            isEsc = true;
         end
         
     else

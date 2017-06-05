@@ -176,7 +176,11 @@ for curTrial = trials2run
         WaitSecs(1 * Fast);
         
         % Record Responses
-        [resp{count}, resp_time(count)] = record_responses(rep_device);
+        [resp{count}, resp_time(count), isEsc] = record_responses(rep_device);
+        
+        if isEsc
+            break
+        end
         
         % Wait the rest of the sceduled fixation time
         WaitSecs((fixationTime - 1) * Fast);
@@ -197,10 +201,14 @@ end
 % Draw a fixation cross to the exact center of the screen. Update the 
 % display and wait 2 seconds before advancing
 
-Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
-Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);
-Screen(W, 'Flip');
-WaitSecs(postFix * Fast);
+if ~isEsc
+
+    Screen('FillRect', W, [], [X/2-6 Y/2-4 X/2+6 Y/2+4]);
+    Screen('FillRect', W, [], [X/2-4 Y/2-6 X/2+4 Y/2+6]);
+    Screen(W, 'Flip');
+    WaitSecs(postFix * Fast);
+
+end
 
 % Release the KbQueue. See KbQueue* documentation
 KbQueueRelease(rep_device);
@@ -236,5 +244,9 @@ thisEncRun.SubjectID    = repmat({Subject}, height(thisEncRun), 1);
 % Write the Enc List for this round to a .csv file in the local directory 
 % "./data"
 writetable(thisEncRun, fullfile('.','data',['icee_encoding_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
+
+if isEsc
+    error('Experiment Escaped')
+end
 
 end
