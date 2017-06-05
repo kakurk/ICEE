@@ -171,7 +171,7 @@ for curTrial = trials2run
         end
         
         % Wait rest of fixationTime
-        WaitSecs(fixationTime - 1 * Fast);
+        WaitSecs((fixationTime - 1) * Fast);
 
 end
 
