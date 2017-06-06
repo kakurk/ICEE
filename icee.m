@@ -127,7 +127,7 @@ try
     % back to zero, and allow keystrokes to enter MATLAB's Command Window
     fclose('all');
     Priority(0);
-    ListenChar(0);
+    %ListenChar(0);
     
     % Compile Data
     compile('./data')
@@ -146,7 +146,7 @@ catch
     % back to zero, and allow keystrokes to enter MATLAB's Command Window
     fclose('all');
     Priority(0);
-    ListenChar(0);
+    %ListenChar(0);
     
     % Output the error message that describes the error
     psychrethrow(psychlasterror);

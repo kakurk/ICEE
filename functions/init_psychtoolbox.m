@@ -29,7 +29,7 @@ Screen('Preference', 'Verbosity', 0);
 
 % Prevent Keystrokes from being entered into MATLAB command and editor 
 % windows
-ListenChar(2);
+%ListenChar(2);
 
 % Hide the Mouse Cursor
 HideCursor;
