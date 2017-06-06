@@ -19,7 +19,7 @@ function matched = dir_regexp(directory, expression)
 
 
     Contents = dir(directory);
-    matched  = struct('name', '', 'date', [], 'bytes', [], 'isdir', [], 'datenum', []);
+    matched  = struct('name', '', 'folder', '', 'date', [], 'bytes', [], 'isdir', [], 'datenum', []);
     count    = 0;
     
     for c = 1:length(Contents)
