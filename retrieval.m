@@ -222,7 +222,7 @@ thisRetRun.rt           = RespTime' - OnsetTime';
 
 thisRetRun.subj         = repmat({Subject}, height(thisRetRun), 1);
 
-thisRetRun.Score        = repmat({''}, height(thisRetRun, 1));
+thisRetRun.Score        = repmat({''}, height(thisRetRun), 1);
 
 % define trial filters
 targetFilt = strcmp(thisRetRun.Condition, 'Target');
