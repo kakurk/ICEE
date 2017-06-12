@@ -18,7 +18,7 @@ function [] = SpecifyModel()
 % current analysis is in, and the directoy which houses the behavioral
 % data.
 
-Analysis.name             = 'Name_Of_Model_hrf';
+Analysis.name             = 'ICEE_encoding_hrf';
 Analysis.directory        = fullfile('/path/to/analysis/directory', Analysis.name);
 Analysis.behav.directory  = '/path/to/behavioral/data/directory';
 
@@ -27,8 +27,7 @@ Analysis.behav.directory  = '/path/to/behavioral/data/directory';
 
 % Please list the subjects to model in a 1 x N cell array.
 
-Subjects       = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
-                   'o001' 'o002' 'o003' 'o004' 'o005' };
+Subjects       = { 'y102' };
 
 
 % User Input Step 3: Model Specifics
@@ -41,8 +40,8 @@ Subjects       = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
 % - Behavioral File Regular Expression
 % - Number of Parametric Modulators
 
-Number.OfTrialTypes           = 4;
-Analysis.behav.regexp         = '.*_ENCdm.xls';
+Number.OfTrialTypes           = 5;
+Analysis.behav.regexp         = '.*_ENCall.xls';
 ParametricMods                = 0;
 
 %% Routine
@@ -140,10 +139,9 @@ for indexS = 1:length(Subjects)
 
                 %--record variable values for this trial
                 
-                rawonset    = BehavData.rawonset(curTrial);    % trial onset time
-                score       = BehavData.score(curTrial);       % score
-                type        = BehavData.type(curTrial);        % type
-                relatedness = BehavData.relatedness(curTrial); % relatedness para mod
+                rawonset    = BehavData.Onset(curTrial);         % trial onset time in seconds
+                score       = BehavData.score(curTrial);         % Score
+                encCond     = BehavData.EncodingCond(curTrial);  % Encoding Condition
 
                 %--Sort Trials into Trial Type Bins
                 
@@ -151,109 +149,57 @@ for indexS = 1:length(Subjects)
                 % of which trial type number we are on
                 indexTT = 0;
 
-                % Trial Type: HighHit
+                % Trial Type: IIhits
                 indexTT = indexTT+1;
-                if  type == 0 && score == 4
+                if strcmp(encCond, 'II') && strcmp(score, 'Hit')
 
                     counter(curRun,indexTT)                     = counter(curRun,indexTT)+1;
-                    names{indexTT}                              = 'HighHit';
-                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset/1000;
+                    names{indexTT}                              = 'IIHits';
+                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset;
                     durations{indexTT}(counter(curRun,indexTT)) = 0;
 
                 end
 
-                % Trial Type: LowHit
+                % Trial Type: IChits
                 indexTT = indexTT+1;                            
-                if  type == 0 && score == 3
+                if strcmp(encCond, 'IC') && strcmp(score, 'Hit')
 
-                    counter(curRun,indexTT) = counter(curRun,indexTT)+1; 
-                    names{indexTT}                              = 'LowHit';
-                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset/1000;
+                    counter(curRun,indexTT)                     = counter(curRun,indexTT)+1; 
+                    names{indexTT}                              = 'IChits';
+                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset;
                     durations{indexTT}(counter(curRun,indexTT)) = 0;
 
                 end
 
-                % Trial Type: AllMiss
+                % Trial Type: IIMiss
                 indexTT = indexTT+1;                            
-                if  type == 0 && (score == 2 || score == 1)
+                if strcmp(encCond, 'II') && strcmp(score, 'Miss')
 
-                    counter(curRun,indexTT) = counter(curRun,indexTT)+1; 
-                    names{indexTT}                              = 'AllMiss';
-                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset/1000;
+                    counter(curRun,indexTT)                     = counter(curRun,indexTT)+1; 
+                    names{indexTT}                              = 'IIMiss';
+                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset;
                     durations{indexTT}(counter(curRun,indexTT)) = 0;
 
                 end
 
-                % Trial Type: AllFA
+                % Trial Type: ICMiss
                 indexTT = indexTT+1;                            
-                if  (type == 1 || type == 2 || type == 3 || type == 4) ...
-                        && (score == 2 || score == 1)
+                if strcmp(encCond, 'IC') && strcmp(score, 'Miss')
 
-                    counter(curRun,indexTT) = counter(curRun,indexTT)+1;
-                    names{indexTT}                              = 'AllFA';
-                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset/1000;
+                    counter(curRun,indexTT)                     = counter(curRun,indexTT)+1;
+                    names{indexTT}                              = 'ICMiss';
+                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset;
                     durations{indexTT}(counter(curRun,indexTT)) = 0;
-
-                    % Parametric Modulators for this Trial Type
-                    indexPmod = 0;
-
-                    % Parametric Modulator 1
-                    indexPmod = indexPmod + 1;
-                    pmod(indexTT).name{indexPmod}  = 'Relatedness';
-                    pmod(indexTT).param{indexPmod}(counter(curRun,indexTT)) = relatedness;
-                    pmod(indexTT).poly{indexPmod}  = 1;
 
                 end
 
-                % Trial Type: HiCR
+                % Trial Type: Other
                 indexTT = indexTT+1;
-                if (type == 1 || type == 2 || type == 3 || type == 4) ...
-                        && score == 4
+                if strcmp(score, '')
 
                     counter(curRun,indexTT) = counter(curRun,indexTT)+1;
-                    names{indexTT}                              = 'HiCR';
-                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset/1000;
-                    durations{indexTT}(counter(curRun,indexTT)) = 0;
-
-                    % Parametric Modulators for this Trial Type
-                    indexPmod = 0;
-
-                    % Parametric Modulator 1
-                    indexPmod = indexPmod + 1;
-                    pmod(indexTT).name{indexPmod}  = 'Relatedness';
-                    pmod(indexTT).param{indexPmod}(counter(curRun,indexTT)) = relatedness;
-                    pmod(indexTT).poly{indexPmod}  = 1;
-
-                end
-
-                % Trial Type: LoCR
-                indexTT = indexTT+1;
-                if (type == 1 || type == 2 || type == 3 || type == 4) ...
-                        && score == 3
-
-                    counter(curRun,indexTT) = counter(curRun,indexTT)+1;
-                    names{indexTT}                              = 'LoCR';
-                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset/1000;
-                    durations{indexTT}(counter(curRun,indexTT)) = 0;
-
-                    % Parametric Modulators for this Trial Type
-                    indexPmod = 0;
-
-                    % Parametric Modulator 1
-                    indexPmod = indexPmod + 1;
-                    pmod(indexTT).name{indexPmod}  = 'Relatedness';
-                    pmod(indexTT).param{indexPmod}(counter(curRun,indexTT)) = relatedness;
-                    pmod(indexTT).poly{indexPmod}  = 1;   
-
-                end
-
-                % Trial Type: NR
-                indexTT = indexTT+1;
-                if score == 99
-
-                    counter(curRun,indexTT) = counter(curRun,indexTT)+1;
-                    names{indexTT}                              = 'NR';
-                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset/1000;
+                    names{indexTT}                              = 'Other';
+                    onsets{indexTT}(counter(curRun,indexTT))    = rawonset;
                     durations{indexTT}(counter(curRun,indexTT)) = 0;
 
                 end
