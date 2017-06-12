@@ -7,16 +7,15 @@ function [] = SPMContrasts()
     
     % Please list the subjects to model in a 1 x N cell array.
 
-    Subjects = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
-                 'o001' 'o002' 'o003' 'o004' 'o005' };
+    Subjects = { 'y102' };
 
     % User Input Step 2: Directories
     
     % Please specify the name of the current analysis, the directory the
     % current analysis is in.
              
-    Analysis.name      = 'Name_Of_Model_hrf'; % name of analysis to run.             
-    Analysis.directory = fullfile('/path/to/analyses/directory', Analysis.name);
+    Analysis.name      = 'ICEE_encoding_hrf'; % name of analysis to run.             
+    Analysis.directory = fullfile('R:\DennisLab\Studies\Elon_ICE_Scanner_Summer_2017\master_ICE\Analysis_enc', Analysis.name);
     
     % User Input Step 3: Options
     
@@ -41,29 +40,89 @@ function [] = SPMContrasts()
 
     Number.OfContrasts = 0;
 
-    % AllTrials- Example All Trials versus baseline for a Memory Study
-    Number.OfContrasts = Number.OfContrasts + 1;
+    % AllTrials
+    Number.OfContrasts = Number.OfContrasts+1;
     Contrasts(Number.OfContrasts).names    = { 'AllTrials' }; % name of contrast
-    Contrasts(Number.OfContrasts).positive = { 'HighHit' 'LowHit' 'AllMiss' 'AllFA' 'HiCR' 'LoCR' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).positive = { 'IIHits' 'ICHits' 'IIMiss' 'ICMiss' 'Other' }; % TTs to be included in contrast (+)
     Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
 
-    % HighHit_vs_LowHit- Contrasting Two Conditions in an Example a Memory Study
-    Number.OfContrasts = Number.OfContrasts + 1;
-    Contrasts(Number.OfContrasts).names    = { 'HighHit_vs_LowHit' }; % name of contrast
-    Contrasts(Number.OfContrasts).positive = { 'HighHit' }; % TTs to be included in contrast (+)
-    Contrasts(Number.OfContrasts).negative = { 'LowHit' }; % TTs to be included in contrast (-)            
+    % AllHits_v_Baseline
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'AllHits_v_Baseline' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'IIHits' 'ICHits'  }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)  
 
-    % AllFA_parampos- Example with a parametric modulator "Relatedness" using 1st Order Modulation using a positive contast wieght
-    Number.OfContrasts = Number.OfContrasts + 1;
-    Contrasts(Number.OfContrasts).names    = { 'AllFA_parampos' }; % name of contrast
-    Contrasts(Number.OfContrasts).positive = { 'AllFAxRelatedness^1' }; % TTs to be included in contrast (+)
+    % IIHits_v_Baseline
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'IIHits_v_Baseline' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'IIHits' }; % TTs to be included in contrast (+)
     Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
 
-    % AllFA_parampos- Example with a parametric modulator "Relatedness" using 1st Order Modulation using a negative contast wieght
-    Number.OfContrasts = Number.OfContrasts + 1;
-    Contrasts(Number.OfContrasts).names    = { 'AllFA_paramneg' }; % name of contrast
-    Contrasts(Number.OfContrasts).positive = {}; % TTs to be included in contrast (+)
-    Contrasts(Number.OfContrasts).negative = { 'AllFAxRelatedness^1' }; % TTs to be included in contrast (-)
+    % ICHits_v_Baseline
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'ICHits_v_Baseline' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'ICHits' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
+
+    % IIMisss_v_Baseline
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'IIMiss_v_Baseline' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'IIMiss' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
+
+    % ICMisss_v_Baseline
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'ICMiss_v_Baseline' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'ICMiss' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)
+
+    % AllHits_v_AllMiss
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'AllHits_v_AllMiss' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'IIHits' 'ICHits'  }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {'IIMiss' 'ICMiss'}; % TTs to be included in contrast (-)  
+
+    % IIHits_v_ICHits
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'IIHits_v_ICHits' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'IIHits' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'ICHits'}; % TTs to be included in contrast (-) 
+
+    % ICHits_v_IIHits
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'ICHits_v_IIHits' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'ICHits' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'IIHits'}; % TTs to be included in contrast (-) 
+
+    % IIHits_vs_IIMiss
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'IIHits_vs_IIMiss' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'IIHits' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'IIMiss' }; % TTs to be included in contrast (-)
+
+    % IIMiss_vs_IIHits
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'IIMiss_vs_IIHits' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'IIMiss' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'IIHits' }; % TTs to be included in contrast (-)
+
+    % ICMiss_vs_ICHits
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'ICMiss_vs_ICHits' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'ICMiss' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'ICHits' }; % TTs to be included in contrast (-)
+
+    % ICHits_vs_ICMiss
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'ICHits_vs_ICMiss' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'ICHits' }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = { 'ICMiss' }; % TTs to be included in contrast (-)
+
+    % Other_v_Baseline
+    Number.OfContrasts = Number.OfContrasts+1;
+    Contrasts(Number.OfContrasts).names    = { 'Other_v_Baseline' }; % name of contrast
+    Contrasts(Number.OfContrasts).positive = { 'Other'  }; % TTs to be included in contrast (+)
+    Contrasts(Number.OfContrasts).negative = {}; % TTs to be included in contrast (-)  
 
 %% Routine
 % Should not need to be edited
