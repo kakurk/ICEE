@@ -224,19 +224,26 @@ thisRetRun.subj         = repmat({Subject}, height(thisRetRun), 1);
 
 thisRetRun.Score        = repmat({''}, height(thisRetRun), 1);
 
-% define trial filters
-targetFilt = strcmp(thisRetRun.Condition, 'Target');
-lureFilt   = strcmp(thisRetRun.Condition, 'Lure');
-yesFilt    = strcmp(thisRetRun.Response, '1!');
-noFilt     = strcmp(thisRetRun.Response, '2@');
-NRFilt     = strcmp(thisRetRun.Response, '');
-
-% specify the score column
-thisRetRun.Score{targetFilt & yesFilt} = 'Hit';
-thisRetRun.Score{targetFilt & noFilt}  = 'Miss';
-thisRetRun.Score{lureFilt & yesFilt}   = 'FA';
-thisRetRun.Score{lureFilt & noFilt}    = 'CR';
-thisRetRun.Score{NRFilt}               = 'NR';
+for iTrial = 1:height(thisRetRun)
+    
+    curResp = thisRetRun.Response{iTrial};
+    curCond = thisRetRun.Condition{iTrial};
+    
+    if strcmp(curCond, 'Target') && strcmp(curResp, '1!')
+        thisRetRun.Score{iTrial} = 'Hit';
+    elseif strcmp(curCond, 'Target') && strcmp(curResp, '2@')
+        thisRetRun.Score{iTrial} = 'Miss';
+    elseif strcmp(curCond, 'Lure') && strcmp(curResp, '1!')
+        thisRetRun.Score{iTrial} = 'FA';
+    elseif strcmp(curCond, 'Lure') && strcmp(curResp, '2@')
+        thisRetRun.Score{iTrial} = 'CR';
+    elseif strcmp(curResp, '')
+        thisRetRun.Score{iTrial} = 'NR';
+    else
+        
+    end
+    
+end
 
 % Write the ret List for this round to a .csv file in the local directory 
 % "./data"
