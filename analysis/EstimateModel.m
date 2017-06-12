@@ -14,7 +14,7 @@ function [] = EstimateModel()
 % current analysis is in, and the directoy which houses the behavioral
 % data.
 
-Analysis.name = 'Name_of_Model_hrf';
+Analysis.name = 'ICEE_encoding_hrf';
 Analysis.dir  = fullfile('/path/to/analyses/directory/', Analysis.name);
 
 Func.dir         = '/path/to/functional/directory';
@@ -29,8 +29,7 @@ Mask.name = 'name_of_mask.img';
 
 % Please list the subjects to model in a 1 x N cell array.
 
-Subjects = { 'y001' 'y002' 'y003' 'y004' 'y005' ...
-             'o001' 'o002' 'o003' 'o004' 'o005' }';
+Subjects = { 'y102' }';
 
 % Please list the runs for the model in a 1 x N cell array.
          
