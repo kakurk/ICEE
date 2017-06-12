@@ -19,8 +19,8 @@ function [] = SpecifyModel()
 % data.
 
 Analysis.name             = 'ICEE_encoding_hrf';
-Analysis.directory        = fullfile('/path/to/analysis/directory', Analysis.name);
-Analysis.behav.directory  = '/path/to/behavioral/data/directory';
+Analysis.directory        = fullfile('S:\nad12\ICE\Analysis_enc\', Analysis.name);
+Analysis.behav.directory  = 'S:\nad12\ICE\data\';
 
 
 % User Input Step 2: Subjects
