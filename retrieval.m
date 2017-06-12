@@ -222,6 +222,22 @@ thisRetRun.rt           = RespTime' - OnsetTime';
 
 thisRetRun.subj         = repmat({Subject}, height(thisRetRun), 1);
 
+thisRetRun.Score        = repmat({''}, height(thisRetRun, 1));
+
+% define trial filters
+targetFilt = strcmp(thisRetRun.Condition, 'Target');
+lureFilt   = strcmp(thisRetRun.Condition, 'Lure');
+yesFilt    = strcmp(thisRetRun.Response, '1!');
+noFilt     = strcmp(thisRetRun.Response, '2@');
+NRFilt     = strcmp(thisRetRun.Response, '');
+
+% specify the score column
+thisRetRun.Score{targetFilt & yesFilt} = 'Hit';
+thisRetRun.Score{targetFilt & noFilt}  = 'Miss';
+thisRetRun.Score{lureFilt & yesFilt}   = 'FA';
+thisRetRun.Score{lureFilt & noFilt}    = 'CR';
+thisRetRun.Score{NRFilt}               = 'NR';
+
 % Write the ret List for this round to a .csv file in the local directory 
 % "./data"
 writetable(thisRetRun, fullfile('.','data',['icee_retrieval_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
