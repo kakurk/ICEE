@@ -15,8 +15,8 @@ for s = 1:length(subj)
     %Accuracy info from RET file
     for i = 1:height(ret)
         test(i)     = {char(ret{i,3})}; %face img
-        on(i)       = ret{i,2};        %type (only care about targets)
-        response(i) = ret{i,14};    %response
+        on(i)       = ret{i,2};         %type (only care about targets)
+        response(i) = ret{i,16};        %Score
     end
 
     %Image info from ENC file
