@@ -237,7 +237,7 @@ for iTrial = 1:height(thisRetRun)
         thisRetRun.Score{iTrial} = 'FA';
     elseif strcmp(curCond, 'Lure') && strcmp(curResp, '2@')
         thisRetRun.Score{iTrial} = 'CR';
-    elseif strcmp(curResp, '')
+    elseif strcmp(curResp, 'NR')
         thisRetRun.Score{iTrial} = 'NR';
     else
         
