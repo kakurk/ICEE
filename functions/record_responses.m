@@ -5,7 +5,7 @@ function [response, response_time, isEsc] = record_responses(varargin)
     % Defaults
     settings = ...
         {-1;
-        '';
+        'NR';
         NaN};
      
      % User Specified Settings
