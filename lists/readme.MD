@@ -1,4 +1,4 @@
-# Lists
+# lists
 
 This directory contains trial lists for the ICEE experiment
 
