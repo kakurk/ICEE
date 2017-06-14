@@ -1,13 +1,13 @@
 clear all;
-Study.studyDir = '/Users/kylekurkela/Documents/MATLAB/githubrepos/ICEE_Task'; % R:\DennisLab\Studies\Elon_ICE_Scanner_Summer_2017\ICEE_master\data
+Study.studyDir = '/gpfs/group/nad12/default/nad12/ICEE/Behav'; % R:\DennisLab\Studies\Elon_ICE_Scanner_Summer_2017\ICEE_master\data
 subj = {'y106'};
 
 for s = 1:length(subj)
     
     subjDir = fullfile(Study.studyDir, subj{s});
     
-    retfile = spm_select('FPList', subjDir, '.*retrieval.*\.csv');
-    encfile = spm_select('FPList', subjDir, '.*encoding.*\.csv');
+    retfile = spm_select('FPList', subjDir, '.*retrieval_compiled.*\.csv');
+    encfile = spm_select('FPList', subjDir, '.*encoding_compiled.*\.csv');
 
     ret   = readtable(retfile); 
     enc   = readtable(encfile);
@@ -16,7 +16,7 @@ for s = 1:length(subj)
     for i = 1:height(ret)
         test(i)     = {char(ret{i,3})}; %face img
         on(i)       = ret{i,2};         %type (only care about targets)
-        response(i) = ret{i,16};        %Score
+        response(i) = ret{i,18};        %Score
     end
 
     %Image info from ENC file
@@ -25,7 +25,7 @@ for s = 1:length(subj)
     end
 
     for k = 1:height(ret); %ret is RET xls
-        if strcmp(on{k}, 'Target') %Should this be where we tell it to pull rows with Target?
+        if strcmp(on{k}, 'Target') %
             filematch = find(strcmp(test(1,k),test2)==1);  %match on face img
             DMscore(filematch) = response(k); %match on face img
        end
