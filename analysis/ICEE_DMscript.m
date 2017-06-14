@@ -1,3 +1,4 @@
+%test
 clear all;
 Study.studyDir = '/gpfs/group/nad12/default/nad12/ICEE/Behav'; % R:\DennisLab\Studies\Elon_ICE_Scanner_Summer_2017\ICEE_master\data
 subj = {'y106'};
