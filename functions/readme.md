@@ -16,7 +16,7 @@ All subfunctions are custom and written by Kyle Kurkela, kyleakurkela@gmail.com
 
     where:
 
-  + *datadir* = full or relative path to the directory where the data are saved. E.g., './data'.
+    + *datadir* = full or relative path to the directory where the data are saved. E.g., './data'.
 
 2. `dir_regexp.m`
 
