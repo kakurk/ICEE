@@ -95,11 +95,13 @@ for curTrial = trials2run
             
                 Side = RectLeft;
                 off  = offset;
+                IIbuffer = -itemitemBuffer;
                 
             elseif strcmp(RetrievalList.SceneOrFaceLeft(curTrial), 'SceneLeft')
             
                 Side   = RectRight;
                 off    = -offset;
+                IIbuffer = itemitemBuffer;
                 
             end
             
@@ -127,6 +129,7 @@ for curTrial = trials2run
             FaceRect = AlignRect(FaceRect, SceneRect, Side);
         else
             FaceRect = AdjoinRect(FaceRect, SceneRect, Side);
+            FaceRect = OffsetRect(FaceRect, IIbuffer, 0);
         end
         
         % Draw Item Stimuli
