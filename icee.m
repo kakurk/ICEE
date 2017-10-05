@@ -25,8 +25,8 @@ global Subject TimeStamp Fast
 
 DBmode   = input('Debug mode? y/n: ','s');
 Subject  = input('Enter subject ID: ','s');
-nRuns    = 4;
-rep_device = -1;
+nRuns    = 5;
+rep_device = 0;
 
 % Hard coded yes/no variables:
 % y = yes
@@ -52,7 +52,7 @@ end
 
 try
     %% Try Running Experiment
-    
+
     % specify directory paths
     stimdir    = fullfile(fileparts(mfilename('fullpath')), 'stim');
     listsdir   = fullfile(fileparts(mfilename('fullpath')), 'lists');
@@ -68,14 +68,14 @@ try
     Encoding  = preload_stim(Encoding, stimdir, 'SceneStim');
     Retrieval = preload_stim(Retrieval, stimdir, 'Face');
     Retrieval = preload_stim(Retrieval, stimdir, 'Scene');
-    
+   
     % For each run...
     for iRun = 1:nRuns
         
-        %-- Encoding Instructions Screen
-        instructions = 'Encoding\n\nMake your welcoming decision as quickly and accurately as you can';
-        directions   = ' ';
-        instructions_screen(instructions, directions);
+        %Screen 2
+        instructions = 'You will see scenes and faces together on the screen.\n\nLook at both the scene and face in each slide and rate how\n\nwelcoming both the scene and face are using the four button box.' ;
+        directions   = ' ' ; 
+        instructions_screen(instructions, directions);     
         
         %-- Trigger Screen
         % looks for a lowercase 't' as the trigger
@@ -83,24 +83,16 @@ try
         directions   = ' ';
         KeyboardKeys = [KbName('t') KbName('escape')];
         triggerTime  = instructions_screen(instructions, directions, [], KeyboardKeys);
-        
+     tic
         %-- Run Encoding
         if strcmp(YN.enc, 'y')
             encoding(Encoding, iRun, triggerTime);
         end
-        
-        %-- Screen 1
-        instructions = 'INSERT TEXT HERE';
-        directions   = ' ';
-        instructions_screen(instructions, directions);  
-        
-        %-- Screen 2
-        instructions = 'INSERT TEXT HERE';
-        directions   = ' ';
-        instructions_screen(instructions, directions);           
-        
-        %-- Retrieval Instructions Screen
-        instructions = 'Retrieval\n\nMake your memory decision as quickly and accurately as you can';
+    toc 
+     %-- Retrieval Instructions Screens   
+    %-- Screen 1   %nancy changed this to add moredirections line
+               
+        instructions = 'You will again see scenes and faces together on the screen.\n\nPlease look at each scene and face pairing and use the first two buttons\n\n on the box to answer whether you have seen the pairing before\n\n(regardless of their layout). Use your first finger to answer yes and\n\nyour second finger to answer no.';
         directions   = ' ';
         instructions_screen(instructions, directions);
         
@@ -109,13 +101,14 @@ try
         directions   = ' ';
         KeyboardKeys = [KbName('t') KbName('escape')];
         triggerTime  = instructions_screen(instructions, directions, [], KeyboardKeys);        
-        
+     tic
         %-- Run Retrieval
         if strcmp(YN.ret, 'y')
             retrieval(Retrieval, iRun, triggerTime);
         end
-
+     toc
     end
+  
         
     %% Finish up
     
@@ -146,7 +139,7 @@ catch
     % back to zero, and allow keystrokes to enter MATLAB's Command Window
     fclose('all');
     Priority(0);
-    %ListenChar(0);
+   % ListenChar(0);
     
     % Output the error message that describes the error
     psychrethrow(psychlasterror);
