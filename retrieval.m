@@ -16,9 +16,10 @@ function retrieval(RetrievalList, iRun, triggerTime)
 %-- Instructions
 
     % trial-by-trial instructions
-    trial_instructions      = 'Did this face and scene appear together previously?';
-    response_scale          = 'Yes                                                No';
-
+    trial_instructions      = 'Please identify the pairings that have been presented previously. Do you';
+    response_scale          = '      REMEMBER                    KNOW                     NEW';
+    response_scale_descript = '       pairing                   pairing                 pairing';
+ 
 %-- Emoticon Specific Settings
 
     % Size of the stimuli, in pixels
@@ -27,6 +28,9 @@ function retrieval(RetrievalList, iRun, triggerTime)
     
     % How much to offset the scene image away from the center.
     offset        = 200;
+    
+    % Item-Item Buffer, in pixels
+    itemitemBuffer = 100;
     
     % The amount of time the pre run fixation is displayed (s)
     preFix        = 2;
@@ -48,9 +52,9 @@ function retrieval(RetrievalList, iRun, triggerTime)
 %-- Create the Keyboard Queue (see KbQueue documentation), restricting
 %   responses
     
-    rep_device           = 1;
+    rep_device           = 0;
     keylist              = zeros(1, 256);
-    keys2record          = [KbName('1!') KbName('2@') KbName('escape')];
+    keys2record          = [KbName('1!') KbName('2@') KbName ('3#') KbName('escape') KbName('6^') KbName('7&') KbName('8*')];
     keylist(keys2record) = 1;
     KbQueueCreate(rep_device, keylist);
 
@@ -135,7 +139,7 @@ for curTrial = trials2run
         bboxH = RectHeight(bbox); % height of the text box
         
         % Scale
-        DrawFormattedText(W, response_scale, 'center', ny + bboxH + 10);     
+        DrawFormattedText(W, response_scale, 'center', ny + bboxH + 10);  
         
     %-- Start KbQueue and Flip Screen      
         
@@ -237,7 +241,7 @@ for iTrial = 1:height(thisRetRun)
         thisRetRun.Score{iTrial} = 'FA';
     elseif strcmp(curCond, 'Lure') && strcmp(curResp, '2@')
         thisRetRun.Score{iTrial} = 'CR';
-    elseif strcmp(curResp, 'NR')
+    elseif strcmp(curResp, '')
         thisRetRun.Score{iTrial} = 'NR';
     else
         
@@ -247,7 +251,7 @@ end
 
 % Write the ret List for this round to a .csv file in the local directory 
 % "./data"
-writetable(thisRetRun, fullfile('.','data',['icee_retrieval_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
+writetable(thisRetRun, fullfile('.','data',['icee5_retrieval_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
 
 if isEsc
     error('Experiment Escaped')
