@@ -16,7 +16,7 @@ function retrieval(RetrievalList, iRun, triggerTime)
 %-- Instructions
 
     % trial-by-trial instructions
-    trial_instructions      = 'Please identify the pairings that have been presented previously. Do you';
+    trial_instructions      = 'Please identify the pairings that have been presented previously.';
     response_scale          = '      REMEMBER                    KNOW                     NEW';
     response_scale_descript = '       pairing                   pairing                 pairing';
  
