@@ -34,7 +34,7 @@ function [] = encoding(EncodingList, iRun, triggerTime)
     offset        = 200;
     
     % Item-Item Buffer, in pixels
-    itemitemBuffer = 50;
+    itemitemBuffer = 100;
     
     % The amount of time the pre-run fixation is displayed (s)
     preFix        = 2;
@@ -58,8 +58,8 @@ function [] = encoding(EncodingList, iRun, triggerTime)
 %                    corresponds to the button box
 %       keys2record = a vector of the Keyboard Keys to record during each
 %                     trial
-    rep_device           = 1;
-    keys2record          = [KbName('1!') KbName('2@') KbName('3#') KbName('4$') KbName('escape')];
+    rep_device           = 0;
+    keys2record          = [KbName('1!') KbName('2@') KbName('3#') KbName('4$') KbName('escape') KbName('6^') KbName('7&') KbName('8*') KbName('9(')];
     
     keylist              = zeros(1, 256);
     keylist(keys2record) = 1;
@@ -243,7 +243,7 @@ thisEncRun.SubjectID    = repmat({Subject}, height(thisEncRun), 1);
 
 % Write the Enc List for this round to a .csv file in the local directory 
 % "./data"
-writetable(thisEncRun, fullfile('.','data',['icee_encoding_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
+writetable(thisEncRun, fullfile('.','data',['icee5_encoding_' Subject '_' num2str(iRun) '_' TimeStamp '.csv']));
 
 if isEsc
     error('Experiment Escaped')
